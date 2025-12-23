@@ -14,6 +14,16 @@ double bounce_recursive(double h, double r, int n)
 	}
 	return h;
 }
+double bounce_recursive_tco(double h, double r, int n, double accumulator)
+{
+	auto dist = accumulator + h;
+	if (n != 1)
+	{
+		dist += r * h;
+		return bounce_recursive_tco(h * r, r, n - 1, dist);
+	}
+	return dist;
+}
 double bounce_loop(double h, double r, int n)
 {
 	double dist = h;

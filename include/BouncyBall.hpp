@@ -7,6 +7,8 @@
 
 double bounce_recursive(double h, double r, int n);
 
+double bounce_recursive_tco(double h, double r, int n, double accumulator = 0.0);
+
 double bounce_loop(double h, double r, int n);
 
 double bounce_geometric_loop(double h, double r, int n);

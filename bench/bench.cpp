@@ -75,4 +75,12 @@ static void BM_hybrid(benchmark::State& state) {
 }
 BENCHMARK(BM_hybrid)->RangeMultiplier(2)->Range(1, MAX_N)->Complexity();
 
+static void BM_tco(benchmark::State& state) {
+	int n = state.range(0);
+	for (auto _ : state)
+		benchmark::DoNotOptimize(bounce_recursive_tco(10.0, 0.85, n));
+	state.SetComplexityN(n);
+}
+BENCHMARK(BM_tco)->RangeMultiplier(2)->Range(1, MAX_N)->Complexity();
+
 BENCHMARK_MAIN();
