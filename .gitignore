@@ -37,7 +37,7 @@ benchmark_output/
 # Ignore any logs or temporary files
 *.log
 *.tmp
-
+tools/.venv
 # Ignore CLion workspace logs and directories
 .idea/workspace.xml
 .idea/tasks.xml

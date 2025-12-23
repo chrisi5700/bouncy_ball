@@ -1,149 +1,65 @@
-# CMake Starter Template
+# Bouncing Ball Distance Calculator
 
-This repository provides a structured C++ project template using **CMake** and **Nix flakes**.  
-It includes benchmarking, testing, and a dedicated playground for experimentation.
+Optimizing a simple interview problem to the extreme.
 
----
+## Problem Statement
 
-## Features
+Calculate the total distance traveled by a bouncing ball in `n` bounces.
 
-- **CMake-based project structure**
-- **Nix flake** for a reproducible development environment
-- **Google Benchmark** for performance analysis
-- **Catch2** for unit testing
-- **Playground** for isolated code testing
-- **libs/** for external or custom libraries
+- Ball drops from height `h`
+- Each bounce loses height by factor `r`
+- First bounce: just drops from `h` → distance = `h`
+- Second bounce: drops `h`, bounces up `h*r`, falls `h*r` → distance = `h + 2hr`
+- Third bounce: adds another up/down of `h*r²` → distance = `h + 2hr + 2hr²`
 
----
-
-## Development with Nix
-
-A **Nix flake** provides a consistent development environment.
-
-```sh
-nix develop
+General formula:
+```
+f(n) = h + 2hr + 2hr² + ... + 2hr^(n-1)
+= h * (1 + r - 2r^n) / (1 - r)    for r ≠ 1
+= h * (2n - 1)                     for r = 1
 ```
 
----
+## Implementations
 
-## Building the Project
+| Function | Complexity | Description |
+|----------|------------|-------------|
+| `bounce_recursive` | O(n) | Original interview solution |
+| `bounce_loop` | O(n) | Simple iterative version |
+| `bounce_geometric_loop` | O(n) | Loop computing geometric series |
+| `bounce_o1_geometric` | O(1) | Closed-form with `std::pow` |
+| `bounce_geometric` | O(1) | Closed-form with `std::pow` |
+| `bounce_fast_exp` | O(log n) | Binary exponentiation |
+| `bounce_fma` | O(log n) | FMA-optimized binary exp |
+| `bounce_branchless` | O(log n) | Branchless with safe division |
+| `bounce_hybrid` | O(log n) | Unrolled small n + closed-form fallback |
 
-```sh
-# Configure the build
-cmake -B build -DCMAKE_BUILD_TYPE=Release
+## Building
 
-# Build all targets
-cmake --build build
-
-# Run tests
-ctest --test-dir build
-
-# Run benchmarks
-./build/bench/bench
+```bash
+cmake --preset release-vcpkg
+cmake --build --preset release-vcpkg
 ```
 
----
+## Running Tests
 
-## Project Structure & Extension Guide
-
-### `/src` - Source Libraries
-
-The `src/` directory is where you define CMake libraries for your project. Here are common patterns:
-
-#### Basic Library Definition
-
-```cmake
-target_add_library(MyLib src/mylib.cpp src/mylib.hpp)
-
-target_include_directories(MyLib PUBLIC
-    $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/include>  # During build
-    $<INSTALL_INTERFACE:include>                            # After installation
-)
-
-target_compile_features(MyLib PUBLIC cxx_std_23)
+```bash
+./build/release-vcpkg/tests/tests
 ```
 
-**Key Concepts:**
+## Running Benchmarks
 
-- **BUILD_INTERFACE**: Include paths used when building the project itself
-- **INSTALL_INTERFACE**: Include paths used by external projects after installation
-- **PRIVATE/PUBLIC/INTERFACE**: Controls visibility of properties to consuming targets
-
-#### Header-Only Library
-
-For libraries with only headers (templates, inline functions):
-
-```cmake
-target_add_library(HeaderOnlyLib INTERFACE)
-
-target_include_directories(HeaderOnlyLib INTERFACE
-    $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/include>
-    $<INSTALL_INTERFACE:include>
-)
-
-target_compile_features(HeaderOnlyLib INTERFACE cxx_std_23)
+```bash
+./build/release-vcpkg/bench/bench --benchmark_out=results.json --benchmark_out_format=json
 ```
 
-#### Setting C++ Standard
+## Plotting Results
 
-Explicitly set the C++ for all presets you can change this line in ``CMakePresets.json`` for the `base` preset:
-
-```json lines
-  "CMAKE_CXX_STANDARD": "23" -> "20" 
+```bash
+python plot_bench.py results.json
 ```
 
+## Results
 
-### `/tests` - Unit Tests
+The O(n) implementations (recursive, loop) scale linearly while the closed-form solutions remain nearly constant regardless of `n`. For large `n`, the optimized versions are orders of magnitude faster.
 
-Write tests in the `tests/` directory using **Catch2**:
-
-```cpp
-#include <catch2/catch_test_macros.hpp>
-
-TEST_CASE("Addition works") {
-    REQUIRE(2 + 2 == 4);
-}
-```
-
-Run tests:
-
-```sh
-ctest --test-dir build
-```
-
-See `tests/TestTypes.hpp` for advanced testing utilities for validating C++ semantics.
-
-### `/bench` - Benchmarks
-
-Use **Google Benchmark** for performance analysis:
-
-```cpp
-#include <benchmark/benchmark.h>
-
-static void BM_MyFunction(benchmark::State& state) {
-    for (auto _ : state) {
-        benchmark::DoNotOptimize(MyFunction());
-    }
-}
-
-BENCHMARK(BM_MyFunction)->Range(8, 8<<10);
-```
-
-### `/playground` - Experimentation
-
-Use the `playground/` directory for quick testing and prototyping:
-
-```cpp
-#include <print>
-
-int main() {
-    std::println("Quick test here");
-}
-```
-
-Compile and run:
-
-```sh
-cmake --build build
-./build/playground/playground
-```
+![Benchmark Results](tools/benchmark_results.png)

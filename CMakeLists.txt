@@ -1,5 +1,5 @@
 cmake_minimum_required(VERSION 3.28)
-project(test_project)
+project(bouncy_ball_bench)
 
 # Include CMake modules for target helpers and compiler settings
 list(APPEND CMAKE_MODULE_PATH "${CMAKE_CURRENT_SOURCE_DIR}/cmake")
@@ -14,7 +14,6 @@ set(ENABLE_SANITIZER_UNDEFINED OFF CACHE BOOL "Enable UndefinedBehaviorSanitizer
 set(ENABLE_LTO OFF CACHE BOOL "Enable Link Time Optimization")
 
 add_subdirectory(src)
-add_subdirectory(playground)
 add_subdirectory(bench)
 add_subdirectory(tests)
 # add_subdirectory(libs/SFML) # for example to add other cmake dependencies

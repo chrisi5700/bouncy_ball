@@ -1,32 +1,78 @@
-//
-// Created by chris on 17.10.24.
-//
-
 #include <benchmark/benchmark.h>
-#include <vector>
-#include <numeric>
+#include <BouncyBall.hpp>
 
-// A function to sum elements in a vector
-int sumVector(const std::vector<int>& v) {
-    return std::accumulate(v.begin(), v.end(), 0);
+constexpr std::size_t MAX_N = 1<<12;
+
+static void BM_recursive(benchmark::State& state) {
+    int n = state.range(0);
+    for (auto _ : state)
+        benchmark::DoNotOptimize(bounce_recursive(10.0, 0.85, n));
+    state.SetComplexityN(n);
 }
+BENCHMARK(BM_recursive)->RangeMultiplier(2)->Range(1, MAX_N)->Complexity();
 
-// Benchmark for summing a vector
-static void BM_SumVector(benchmark::State& state) {
-    // Create a vector with the size provided by the benchmark state
-    std::vector<int> v(state.range(0), 1); // Vector of 1's of size range(0)
-
-    // Loop over each state iteration (measures performance over multiple runs)
-    for (auto _ : state) {
-        benchmark::DoNotOptimize(sumVector(v)); // Perform the sum and prevent optimization
-    }
-
-    // Set the number of processed elements for more meaningful stats
-    state.SetItemsProcessed(state.iterations() * state.range(0));
+static void BM_loop(benchmark::State& state) {
+    int n = state.range(0);
+    for (auto _ : state)
+        benchmark::DoNotOptimize(bounce_loop(10.0, 0.85, n));
+    state.SetComplexityN(n);
 }
+BENCHMARK(BM_loop)->RangeMultiplier(2)->Range(1, MAX_N)->Complexity();
 
-// Register the function as a benchmark and set a range of input sizes
-BENCHMARK(BM_SumVector)->Range(8, 8<<10); // Benchmark on input sizes from 8 to 8192
+static void BM_geometric_loop(benchmark::State& state) {
+    int n = state.range(0);
+    for (auto _ : state)
+        benchmark::DoNotOptimize(bounce_geometric_loop(10.0, 0.85, n));
+    state.SetComplexityN(n);
+}
+BENCHMARK(BM_geometric_loop)->RangeMultiplier(2)->Range(1, MAX_N)->Complexity();
 
-// Main function to run the benchmarks
+static void BM_o1_geometric(benchmark::State& state) {
+    int n = state.range(0);
+    for (auto _ : state)
+        benchmark::DoNotOptimize(bounce_o1_geometric(10.0, 0.85, n));
+    state.SetComplexityN(n);
+}
+BENCHMARK(BM_o1_geometric)->RangeMultiplier(2)->Range(1, MAX_N)->Complexity();
+
+static void BM_geometric(benchmark::State& state) {
+    int n = state.range(0);
+    for (auto _ : state)
+        benchmark::DoNotOptimize(bounce_geometric(10.0, 0.85, n));
+    state.SetComplexityN(n);
+}
+BENCHMARK(BM_geometric)->RangeMultiplier(2)->Range(1, MAX_N)->Complexity();
+
+static void BM_fast_exp(benchmark::State& state) {
+    int n = state.range(0);
+    for (auto _ : state)
+        benchmark::DoNotOptimize(bounce_fast_exp(10.0, 0.85, n));
+    state.SetComplexityN(n);
+}
+BENCHMARK(BM_fast_exp)->RangeMultiplier(2)->Range(1, MAX_N)->Complexity();
+
+static void BM_fma(benchmark::State& state) {
+    int n = state.range(0);
+    for (auto _ : state)
+        benchmark::DoNotOptimize(bounce_fma(10.0, 0.85, n));
+    state.SetComplexityN(n);
+}
+BENCHMARK(BM_fma)->RangeMultiplier(2)->Range(1, MAX_N)->Complexity();
+
+static void BM_branchless(benchmark::State& state) {
+    int n = state.range(0);
+    for (auto _ : state)
+        benchmark::DoNotOptimize(bounce_branchless(10.0, 0.85, n));
+    state.SetComplexityN(n);
+}
+BENCHMARK(BM_branchless)->RangeMultiplier(2)->Range(1, MAX_N)->Complexity();
+
+static void BM_hybrid(benchmark::State& state) {
+    int n = state.range(0);
+    for (auto _ : state)
+        benchmark::DoNotOptimize(bounce_hybrid(10.0, 0.85, n));
+    state.SetComplexityN(n);
+}
+BENCHMARK(BM_hybrid)->RangeMultiplier(2)->Range(1, MAX_N)->Complexity();
+
 BENCHMARK_MAIN();
